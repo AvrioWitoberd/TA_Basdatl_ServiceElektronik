@@ -1,73 +1,125 @@
 <?php
-// public/index.php
 session_start();
+require_once "../config/db.php";
 ?>
 <!DOCTYPE html>
 <html lang="id">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Service Elektronik - Beranda</title>
-  <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body>
 
-<nav class="navbar">
-  <div class="container" style="display:flex;align-items:center;justify-content:space-between;">
-    <div class="logo">Service Elektronik</div>
-    <div>
-      <a href="login.php" class="btn btn-sm btn-primary">Login</a>
-      <a href="register.php" class="btn btn-sm btn-secondary">Daftar</a>
-      <a href="form-service.php" class="btn btn-sm btn-info">Ajukan Service</a>
-      <a href="tracking.php" class="btn btn-sm" style="background:#333;color:#fff;padding:7px 12px;border-radius:6px;margin-left:6px;">Tracking</a>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Elektronik</title>
+
+    <!-- BOOTSTRAP -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .hero {
+            background: url('assets/img/hero-bg.jpg') center/cover no-repeat;
+            padding: 100px 20px;
+            color: white;
+            text-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+        }
+
+        .feature-card:hover {
+            transform: scale(1.03);
+            transition: 0.3s;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="index.php">Service Elektronik</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="ms-auto d-flex gap-2">
+
+                <?php if (!isset($_SESSION['user'])): ?>
+                    <a href="login.php" class="btn btn-outline-primary">Login</a>
+                    <a href="register.php" class="btn btn-primary">Daftar</a>
+                <?php else: ?>
+                    <a href="dashboard_<?php echo $_SESSION['role']; ?>.php"
+                        class="btn btn-success">
+                        Dashboard
+                    </a>
+                <?php endif; ?>
+
+            </div>
+        </div>
     </div>
-  </div>
 </nav>
 
-<header class="hero" style="padding:80px 20px 60px;">
-  <div class="container" style="text-align:center; color:#fff;">
-    <h1 style="font-size:40px; margin-bottom:12px;">Solusi Service Elektronik Cepat & Terpercaya</h1>
-    <p style="max-width:760px;margin:auto;font-size:18px;opacity:0.95;">
-      Kami melayani perbaikan smartphone, laptop, printer, dan elektronik rumah tangga.
-      Lacak perbaikan Anda, ajukan service online, dan lihat laporan di dashboard admin.
-    </p>
+<!-- HERO -->
+<section class="hero mt-5">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold">Layanan Service Elektronik</h1>
+        <p class="lead mt-3">
+            Perbaikan cepat & terpercaya untuk HP, Laptop, Printer, dan perangkat elektronik lainnya.
+        </p>
 
-    <div style="margin-top:22px;">
-      <a href="form-service.php" class="btn btn-primary">Ajukan Service Sekarang</a>
-      <a href="tracking.php" class="btn btn-secondary" style="margin-left:10px;">Cek Status Service</a>
+        <a href="<?php echo isset($_SESSION['user']) ? 'form-service.php' : 'login.php'; ?>"
+           class="btn btn-primary btn-lg mt-3">Ajukan Service</a>
     </div>
-  </div>
-</header>
-
-<section class="container" style="padding:36px 0;">
-  <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:space-between;">
-    <div style="flex:1;min-width:240px;background:#fff;padding:20px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06);">
-      <h3>Penerimaan Service</h3>
-      <p>Form cepat untuk terima barang dan catat keluhan, estimasi biaya, dan data pelanggan.</p>
-      <p><a href="form-service.php" class="btn btn-info">Buka Form</a></p>
-    </div>
-
-    <div style="flex:1;min-width:240px;background:#fff;padding:20px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06);">
-      <h3>Tracking Perbaikan</h3>
-      <p>Lacak status perbaikan berdasarkan ID service (diagnosa → proses → selesai).</p>
-      <p><a href="tracking.php" class="btn btn-info">Lacak Sekarang</a></p>
-    </div>
-
-    <div style="flex:1;min-width:240px;background:#fff;padding:20px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06);">
-      <h3>Manajemen Teknisi</h3>
-      <p>Admin dapat menugaskan teknisi dan memantau kinerja melalui dashboard admin.</p>
-      <p><span class="btn btn-secondary">Untuk Admin</span></p>
-    </div>
-  </div>
 </section>
 
-<footer style="padding:20px 0;background:#111;color:#fff;margin-top:40px;">
-  <div class="container" style="display:flex;justify-content:space-between;align-items:center;">
-    <div>© <?= date('Y') ?> Service Elektronik</div>
-    <div><small>Jl. Contoh No.1 - Telp: 0812xxxxxxx</small></div>
-  </div>
+<!-- FITUR -->
+<section class="container my-5">
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="p-4 bg-white shadow-sm rounded feature-card">
+                <h4>Penerimaan Service</h4>
+                <p>Form pengambilan data perangkat, keluhan, dan estimasi biaya.</p>
+                <a href="form-service.php" class="btn btn-outline-primary">Buka Form</a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="p-4 bg-white shadow-sm rounded feature-card">
+                <h4>Tracking Perbaikan</h4>
+                <p>Lacak status perbaikan dari diagnosa sampai selesai.</p>
+                <a href="tracking.php" class="btn btn-outline-primary">Lacak</a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="p-4 bg-white shadow-sm rounded feature-card">
+                <h4>Manajemen Teknisi</h4>
+                <p>Admin dapat menugaskan teknisi dan memantau progres.</p>
+                <button class="btn btn-secondary" disabled>Untuk Admin</button>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- TRACKING -->
+<section class="container my-5">
+    <div class="p-4 bg-white shadow-sm rounded mx-auto" style="max-width: 500px;">
+        <h4 class="text-center mb-3 fw-bold">Cek Status Service</h4>
+
+        <form action="tracking.php" method="GET" class="d-flex gap-2">
+            <input type="text" name="kode" required 
+                   class="form-control" placeholder="Masukkan Kode Service">
+            <button class="btn btn-dark">Cek</button>
+        </form>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-dark text-light text-center py-3 mt-5">
+    © <?= date('Y') ?> Service Elektronik — All Rights Reserved
 </footer>
 
-<script src="assets/js/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
