@@ -1,24 +1,30 @@
 <?php
-require_once "../config/database.php";
+require_once __DIR__ . "/../config/db.php";
 
 class Service {
+    private $pdo;
 
-    public static function count() {
-        global $pdo;
-        return $pdo->query("SELECT COUNT(*) FROM service")->fetchColumn();
+    public function __construct() {
+        $this->pdo = getConnection();
     }
 
-    public static function getLatest($limit = 5) {
-        global $pdo;
-        $stmt = $pdo->prepare("
-            SELECT s.id, p.nama AS pelanggan, pr.nama AS perangkat, s.status, s.tanggal_masuk
-            FROM service s
-            JOIN pelanggan p ON s.pelanggan_id = p.id
-            JOIN perangkat pr ON s.perangkat_id = pr.id
-            ORDER BY s.id DESC
-            LIMIT ?
-        ");
-        $stmt->execute([$limit]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function create($data) {
+        $sql = "INSERT INTO service (id_perangkat, id_teknisi, id_admin, id_status, tanggal_masuk, keluhan, id_pelanggan)
+                VALUES (?, ?, ?, ?, NOW(), ?, ?)";
+
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            $data["id_perangkat"],
+            $data["id_teknisi"],
+            $data["id_admin"],
+            $data["id_status"],
+            $data["keluhan"],
+            $data["id_pelanggan"]
+        ]);
+    }
+
+    public function getAll() {
+        return $this->pdo->query("SELECT * FROM service ORDER BY id_service DESC")->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+?>

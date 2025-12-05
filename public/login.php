@@ -1,49 +1,76 @@
 <?php
-// public/login.php
 session_start();
-// jika sudah login, redirect sesuai role (contoh)
-if (!empty($_SESSION['user_role'])) {
-    if ($_SESSION['user_role'] === 'admin') header('Location: dashboard_admin.php');
-    if ($_SESSION['user_role'] === 'pelanggan') header('Location: dashboard_pelanggan.php');
-    if ($_SESSION['user_role'] === 'teknisi') header('Location: dashboard_teknisi.php');
-    exit;
-}
+require_once "../models/Auth.php";
 
-// login form submit (sederhana - integrasikan ke DB di models nanti)
-$error = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
-    $password = trim($_POST['password'] ?? '');
-    // sementara: dummy check (ganti dengan cek DB menggunakan PDO nanti)
-    if ($username === 'admin' && $password === 'admin123') {
-        $_SESSION['user_role'] = 'admin';
-        $_SESSION['user'] = 'admin';
-        header('Location: dashboard_admin.php'); exit;
+$auth = new Auth();
+$error = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+
+    $user = $auth->login($email, $password);
+
+    if ($user) {
+        $_SESSION['user'] = $user;
+
+        // Redirect sesuai role
+        switch ($user['role']) {
+            case 'admin':
+                header("Location: dashboard_admin.php");
+                exit;
+            case 'pelanggan':
+                header("Location: dashboard_pelanggan.php");
+                exit;
+            case 'teknisi':
+                header("Location: dashboard_teknisi.php");
+                exit;
+        }
+    } else {
+        $error = "Email atau password salah.";
     }
-    $error = 'Username atau password salah.';
 }
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <title>Login - Service Elektronik</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+    <meta charset="UTF-8">
+    <title>Login - Service Elektronik</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-<div class="container" style="max-width:420px;margin:120px auto;">
-  <div class="login-box">
-    <h2>Login</h2>
-    <?php if($error): ?><div class="alert"><?= htmlspecialchars($error) ?></div><?php endif; ?>
-    <form method="post">
-      <label>Username</label>
-      <input type="text" name="username" required>
-      <label>Password</label>
-      <input type="password" name="password" required>
-      <button class="btn btn-primary" type="submit">Masuk</button>
-    </form>
-    <p style="margin-top:8px;">Belum punya akun? <a href="register.php">Daftar di sini</a></p>
-  </div>
+<body class="bg-light">
+
+<div class="container mt-5" style="max-width:400px;">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h3 class="card-title text-center mb-4">Login</h3>
+
+            <?php if ($error): ?>
+                <div class="alert alert-danger"><?= $error ?></div>
+            <?php endif; ?>
+
+            <form method="POST" action="">
+                <div class="mb-3">
+                    <label>Email</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+
+            <div class="mt-3 text-center">
+                <small>Belum punya akun? <a href="register.php">Daftar</a></small>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

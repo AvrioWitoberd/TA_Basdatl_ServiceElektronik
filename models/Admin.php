@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . "/../config/db.php";
 
-class Perangkat {
+class Admin {
     private $pdo;
 
     public function __construct() {
@@ -9,7 +9,7 @@ class Perangkat {
     }
 
     public function getAll() {
-        return $this->pdo->query("SELECT * FROM perangkat")->fetchAll(PDO::FETCH_ASSOC);
+        return $this->pdo->query("SELECT * FROM admin")->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 ?>
