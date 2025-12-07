@@ -8,7 +8,7 @@ class Auth {
         $this->pdo = getConnection();
     }
 
-    // cek login berdasarkan role
+    // Login
     public function login($email, $password) {
         $roles = [
             "admin"     => "admin",
@@ -17,11 +17,18 @@ class Auth {
         ];
 
         foreach ($roles as $role => $table) {
+
             $stmt = $this->pdo->prepare("SELECT * FROM $table WHERE email = ?");
             $stmt->execute([$email]);
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($data && $data["password"] === $password) {
+            // Jika tabel tidak punya kolom password → skip
+            if (!$data || !isset($data["password"])) {
+                continue;
+            }
+
+            // Password plaintext sementara
+            if ($data["password"] === $password) {
                 $data["role"] = $role;
                 return $data;
             }
@@ -30,26 +37,29 @@ class Auth {
         return null;
     }
 
+    // Register
     public function register($nama, $email, $no_hp, $alamat, $password, $role) {
-    try {
-        $pdo = getConnection();
+        try {
+            $hashed_password = $password; // sementara plaintext
 
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            if ($role === "pelanggan") {
+                $stmt = $this->pdo->prepare("
+                    INSERT INTO pelanggan (nama, email, no_hp, alamat, password, tanggal_daftar)
+                    VALUES (?, ?, ?, ?, ?, NOW())");
+                $stmt->execute([$nama, $email, $no_hp, $alamat, $hashed_password]);
 
-        if ($role === "pelanggan") {
-            $stmt = $pdo->prepare("INSERT INTO pelanggan (nama, email, no_hp, alamat, tanggal_daftar)
-                                   VALUES (?, ?, ?, ?, NOW())");
-            $stmt->execute([$nama, $email, $no_hp, $alamat]);
-        } elseif ($role === "teknisi") {
-            $stmt = $pdo->prepare("INSERT INTO teknisi (nama_teknisi, email, no_hp, keahlian, status_aktif)
-                                   VALUES (?, ?, ?, '-', 'aktif')");
-            $stmt->execute([$nama, $email, $no_hp]);
+            } elseif ($role === "teknisi") {
+                $stmt = $this->pdo->prepare("
+                    INSERT INTO teknisi (nama_teknisi, email, no_hp, keahlian, status_aktif, password)
+                    VALUES (?, ?, ?, '-', 'aktif', ?)");
+                $stmt->execute([$nama, $email, $no_hp, $hashed_password]);
+            }
+
+            return true;
+
+        } catch (PDOException $e) {
+            return false;
         }
-
-        return true;
-    } catch (PDOException $e) {
-        return false;
     }
-}
 }
 ?>

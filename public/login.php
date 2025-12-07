@@ -16,16 +16,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // Redirect sesuai role
         switch ($user['role']) {
-            case 'admin':
-                header("Location: dashboard_admin.php");
-                exit;
-            case 'pelanggan':
-                header("Location: dashboard_pelanggan.php");
-                exit;
-            case 'teknisi':
-                header("Location: dashboard_teknisi.php");
-                exit;
-        }
+    case 'admin':
+        header("Location: ./dashboard_admin.php");
+        exit;
+    case 'pelanggan':
+        header("Location: ./dashboard_pelanggan.php");
+        exit;
+    case 'teknisi':
+        header("Location: ./dashboard_teknisi.php");
+        exit;
+}
     } else {
         $error = "Email atau password salah.";
     }
